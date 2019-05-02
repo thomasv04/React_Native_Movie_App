@@ -1,6 +1,7 @@
 import React from 'react';
 import Navigation from './Navigation/Navigation'
-import GestureHandler from 'react-native-gesture-handler';
+import { Provider } from 'react-redux'
+import Store from './Store/configureStore'
 import { StyleSheet, View, ActivityIndicator } from 'react-native'
 import { Font } from 'expo'
 
@@ -32,7 +33,10 @@ export default class App extends React.Component {
   render() {
     return (
       this.state.fontLoaded ? (
-        <Navigation />
+        <Provider store={Store}>
+          <Navigation />
+        </Provider>
+
       ) : this._displayLoading()
 
     );

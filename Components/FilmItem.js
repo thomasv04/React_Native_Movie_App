@@ -30,6 +30,17 @@ class FilmItem extends React.Component {
         return stars
     }
 
+    _displayFavoriteImage(){
+        if(this.props.isFilmFavorite){
+            return (
+                <Image
+                style={styles.favorite_image}
+                source={require('../img/ic_favorite.png')}
+                />
+            )
+        }
+    }
+
 
     render() {
         const {film, displayDetailForFilm} = this.props
@@ -43,6 +54,7 @@ class FilmItem extends React.Component {
                 </View>
                 <View style={styles.content_container}>
                     <View style={styles.header_container}>
+                        {this._displayFavoriteImage()}
                         <Text style={styles.title_text}>{film.title}</Text>
                         
                         
@@ -72,7 +84,7 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         padding:5,
         justifyContent: 'space-between',
-        alignItems:  'flex-end',
+        alignItems:  'center',
         position: 'relative',
 
     },
@@ -126,12 +138,11 @@ const styles = StyleSheet.create({
     },
     title_text: {
         fontSize: 20,
-        flex: 1,
         flexWrap: 'wrap',
         paddingRight: 5,
-        marginTop:5,
         fontFamily: 'Montserrat-Bold',
-        color: '#5d5d5d'
+        color: '#5d5d5d',
+        width: '85%'
     },
     vote_text: {
         fontSize: 26,
@@ -157,6 +168,15 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666666',
         fontFamily: 'Montserrat-Bold',
+    },
+    favorite_image:{
+        position:'absolute',
+        top:10,
+        right:2,
+        width:25,
+        height: 25,
+        marginRight: 5,
+        paddingRight: 10
     }
 })
 

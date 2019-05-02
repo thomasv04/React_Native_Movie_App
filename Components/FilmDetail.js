@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { StyleSheet, View, Text, ActivityIndicator, Image } from 'react-native'
+import { StyleSheet, View, Text, ActivityIndicator, Image, TouchableOpacity } from 'react-native'
 import { getImageFromApi, getFilmDetailFromApi } from '../API/TMDBApi'
 import { ScrollView } from 'react-native-gesture-handler';
 import moment from 'moment'
 import numeral from 'numeral'
+import { connect } from 'react-redux'
 
-export default class FilmDetail extends React.Component {
+class FilmDetail extends React.Component {
 
     constructor(props) {
         super(props)
@@ -79,6 +80,28 @@ export default class FilmDetail extends React.Component {
 
     }
 
+    _toggleFavorite() {
+        const action = { type: "TOGGLE_FAVORITE", value: this.state.film }
+        this.props.dispatch(action)
+    }
+
+    componentDidUpdate() {
+        console.log('Film', this.props.favoritesFilm)
+    }
+
+    _displayFavoriteImage() {
+        var sourceImage = require('../img/ic_favorite_border.png')
+        if (this.props.favoritesFilm.findIndex(item => item.id === this.state.film.id) !== -1) {
+            sourceImage = require('../img/ic_favorite.png')
+        }
+        return (
+            <Image
+                source={sourceImage}
+                style={styles.favotire_image}
+            />
+        )
+    }
+
 
     _displayFilm() {
         const { film } = this.state
@@ -87,19 +110,24 @@ export default class FilmDetail extends React.Component {
                 <ScrollView style={styles.scrollview_container}>
                     <View style={styles.image_container}>
                         {getImageFromApi(film.backdrop_path, 780) !== 'https://image.tmdb.org/t/p/w780/null' ? (
-                        <Image
-                            style={styles.image}
-                            source={{ uri: getImageFromApi(film.backdrop_path, 780) }}
-                            onLoadEnd={() => { this._imageLoaded()}}
-                        />) : <Image
-                            style={styles.image}
-                            source={require('../assets/bgNull.jpg')}
-                            onLoadEnd={() => { this._imageLoaded()}}
-                        />}
+                            <Image
+                                style={styles.image}
+                                source={{ uri: getImageFromApi(film.backdrop_path, 780) }}
+                                onLoadEnd={() => { this._imageLoaded() }}
+                            />) : <Image
+                                style={styles.image}
+                                source={require('../assets/bgNull.jpg')}
+                                onLoadEnd={() => { this._imageLoaded() }}
+                            />}
                     </View>
                     <View style={styles.text_container}>
                         <View style={styles.text_container_reduce}>
-                            <Text style={styles.title_text}>{film.title}</Text>
+                            <View style={styles.title_container}>
+                                <Text style={styles.title_text}>{film.title}</Text>
+                                <TouchableOpacity onPress={() => this._toggleFavorite()} style={styles.favorite_container}>
+                                    {this._displayFavoriteImage()}
+                                </TouchableOpacity>
+                            </View>
                             <View style={styles.star_container}>{this._renderStars(film.vote_average)}<Text style={styles.rating}>{film.vote_average}</Text></View>
                             <View style={styles.genre_container}>{film.genres.map(function (genre, index) {
                                 return <Text key={index} style={styles.genre}>{genre.name}</Text>
@@ -148,7 +176,7 @@ const styles = StyleSheet.create({
     },
     scrollview_container: {
         flex: 1,
-        
+
     },
     moreButton: {
         fontFamily: 'Montserrat-Bold',
@@ -223,6 +251,12 @@ const styles = StyleSheet.create({
         width: '95%',
 
     },
+    title_container:{
+        width:'100%',
+        flex:1,
+        justifyContent: 'space-between',
+        position:'relative'
+    },
     title_text: {
         fontSize: 25,
         flex: 1,
@@ -234,6 +268,7 @@ const styles = StyleSheet.create({
         color: '#000000',
         textAlign: 'left',
         fontFamily: 'Montserrat-Bold',
+        width: '80%',
     },
     description_text: {
         color: '#a4a5a5',
@@ -248,6 +283,28 @@ const styles = StyleSheet.create({
         marginRight: 5,
         marginTop: 5,
         fontFamily: 'Montserrat',
+    },
+    favorite_container: {
+        alignItems: 'center',
+        position:'absolute',
+        top:20,
+        right:10,
+        width: '7%',
+        aspectRatio:1/1,
+        height: 'auto'
+    },
+    favotire_image: {
+        width:'100%',
+        height:'100%'
+        
     }
 })
+
+const mapStateToProps = (state) => {
+    return {
+        favoritesFilm: state.favoritesFilm
+    }
+}
+
+export default connect(mapStateToProps)(FilmDetail)
 
